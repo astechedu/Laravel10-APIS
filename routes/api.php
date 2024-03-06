@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthenticationController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Auth\LoginRegisterController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,16 +22,34 @@ use App\Http\Controllers\Api\AuthenticationController;
 //Notes: V Good
 //https://www.allphptricks.com/laravel-10-rest-api-using-passport-authentication/
 
-
+/*
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+*/
 
-Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
-  Route::post('login', [AuthenticationController::class, 'login']);
-  Route::post('register', [AuthenticationController::class, 'register']);
-  
-  Route::post('logout', [AuthenticationController::class, 'logout'])->middleware('auth:api');
+// Public routes of authtication
+Route::controller(LoginRegisterController::class)->group(function() {
+    Route::post('/register', 'register');
+    Route::post('/login', 'login');
+});
+
+// Public routes of product
+Route::controller(ProductController::class)->group(function() {
+    Route::get('/products', 'index');
+    Route::get('/products/{id}', 'show');
+    Route::get('/products/search/{name}', 'search');
+});
+
+// Protected routes of product and logout
+Route::middleware('auth:api')->group( function () {
+    Route::post('/logout', [LoginRegisterController::class, 'logout']);
+
+    Route::controller(ProductController::class)->group(function() {
+        Route::post('/products', 'store');
+        Route::post('/products/{id}', 'update');
+        Route::delete('/products/{id}', 'destroy');
+    });
 });
 
 
