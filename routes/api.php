@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Api\AuthenticationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,21 +12,27 @@ use App\Http\Controllers\API\AuthController;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "api" middleware group. Make something great!
 |
-*/  
+*/
+
+//Notes: 
+//https://medium.com/@kingasiadavid41/laravel-10-api-authentication-using-passport-154137cbce31
+
+
+//Notes: V Good
+//https://www.allphptricks.com/laravel-10-rest-api-using-passport-authentication/
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::group(['namespace' => 'Api', 'prefix' => 'v1'], function () {
+  Route::post('login', [AuthenticationController::class, 'login']);
+  Route::post('register', [AuthenticationController::class, 'register']);
   
-Route::controller(AuthController::class)->group(function () {
-    Route::post('login', 'login');
-    Route::post('register', 'register');
-    Route::post('logout', 'logout');
+  Route::post('logout', [AuthenticationController::class, 'logout'])->middleware('auth:api');
 });
 
-//Route::get('/book', [BookContoller::class, 'index']);
-//Route::get('/book/{id}', [BookContoller::class, 'show']);
-//Route::post('/books', [BookContoller::class, 'store']);
-//Route::put('/book/{id}', [BookContoller::class, 'update']);
-//Route::delete('/book/{id}', [BookContoller::class, 'destroy']);
+
+
+
